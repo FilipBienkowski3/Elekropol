@@ -8,9 +8,13 @@ import {
 } from '@fortawesome/free-brands-svg-icons';
 import './Footer.css';
 
-const Footer: React.FC = () => {
+export interface FooterProps {
+  theme: 'light' | 'dark';
+}
+
+const Footer: React.FC<FooterProps> = ({ theme }) => {
   return (
-    <footer className="footer">
+    <footer className={`footer ${theme}`}>
       <div className="footer-content">
         <div className="footer-section">
           <h3>O nas</h3>

@@ -1,8 +1,18 @@
 .footer {
-    background-color: #373737;
-    color: white;
     padding: 20px;
     text-align: center;
+    margin-top: auto;
+    transition: background-color 0.3s, color 0.3s;
+  }
+  
+  .footer.light {
+    background-color: #f5f5f5;
+    color: #373737;
+  }
+  
+  .footer.dark {
+    background-color: #373737;
+    color: #f5f5f5;
   }
   
   .footer-content {
@@ -10,6 +20,7 @@
     justify-content: space-around;
     flex-wrap: wrap;
     gap: 20px;
+    padding: 20px 0;
   }
   
   .footer-section {
@@ -36,7 +47,7 @@
   
   .social-icon {
     font-size: 24px;
-    color: white;
+    color: inherit;
     transition: color 0.3s;
   }
   
@@ -45,6 +56,7 @@
   }
   
   .footer-bottom {
+    border-top: 1px solid #555;
     padding-top: 10px;
     margin-top: 20px;
   }
@@ -53,6 +65,3 @@
     margin: 0;
     font-size: 14px;
   }
-
-
-  

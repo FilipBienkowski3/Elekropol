@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faSearch,
@@ -11,14 +11,12 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import './Header.css';
 
-const Header: React.FC = () => {
-  const [language, setLanguage] = useState<'EN' | 'PL'>('PL');
-  const [theme, setTheme] = useState<'light' | 'dark'>('dark');
+export interface HeaderProps {
+  theme: 'light' | 'dark';
+  toggleTheme: () => void;
+}
 
-  const toggleTheme = () => {
-    setTheme((prev) => (prev === 'light' ? 'dark' : 'light'));
-  };
-
+const Header: React.FC<HeaderProps> = ({ theme, toggleTheme }) => {
   return (
     <header className={`header ${theme}`}>
       <div className="up">
@@ -37,15 +35,15 @@ const Header: React.FC = () => {
         </div>
         <div className="language-switcher">
           <span
-            className={language === 'EN' ? 'active' : ''}
-            onClick={() => setLanguage('EN')}
+            className={theme === 'light' ? 'active' : ''}
+            onClick={() => toggleTheme()}
           >
             EN
           </span>
           |
           <span
-            className={language === 'PL' ? 'active' : ''}
-            onClick={() => setLanguage('PL')}
+            className={theme === 'dark' ? 'active' : ''}
+            onClick={() => toggleTheme()}
           >
             PL
           </span>
