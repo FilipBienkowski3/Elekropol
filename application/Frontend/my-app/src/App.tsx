@@ -5,13 +5,12 @@ import AddPerson from './components/AddPerson';
 import UpdatePerson from './components/UpdatePerson';
 import DeletePerson from './components/DeletePerson';
 import PersonList from './components/PersonList';
-import './App.css'; // Stylowanie (opcjonalne)
+import './App.css';
 
 const App: React.FC = () => {
   return (
     <Router>
       <div>
-        {/* Nawigacja */}
         <nav>
           <ul>
             <li>
@@ -32,7 +31,6 @@ const App: React.FC = () => {
           </ul>
         </nav>
 
-        {/* Definicja tras */}
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/add" element={<AddPerson />} />

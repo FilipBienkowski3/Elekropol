@@ -6,9 +6,7 @@ const cors = require('cors');
  var logger = require('morgan');
  var models = require("./db");
  
- var indexRouter = require('./routes/index');
- var usersRouter = require('./routes/users');
- var helloRouter = require('./routes/hello');
+
  var personRouter = require('./routes/person');
  
  var app = express();
@@ -28,9 +26,7 @@ const cors = require('cors');
  app.use(cookieParser());
  app.use(express.static(path.join(__dirname, 'public')));
  
- app.use('/', indexRouter);
- app.use('/users', usersRouter);
- app.use('/hello', helloRouter);
+
  app.use('/person', personRouter);
  
  app.use(function(req, res, next) {
