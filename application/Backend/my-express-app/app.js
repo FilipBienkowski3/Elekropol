@@ -7,8 +7,10 @@ const cors = require('cors');
  var models = require("./db");
  
 
- var personRouter = require('./routes/person');
- 
+ const clientsRouter = require('./routes/clients');
+ const productsRouter = require('./routes/products');
+ const owadsRouter = require('./routes/owads');
+
  var app = express();
  
  app.use(cors({
@@ -26,9 +28,10 @@ const cors = require('cors');
  app.use(cookieParser());
  app.use(express.static(path.join(__dirname, 'public')));
  
+ app.use('/owads', owadsRouter);
 
- app.use('/person', personRouter);
- 
+ app.use('/clients', clientsRouter);
+ app.use('/products', productsRouter);
  app.use(function(req, res, next) {
    next(createError(404));
  });
