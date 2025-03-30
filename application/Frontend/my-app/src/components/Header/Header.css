@@ -1,0 +1,163 @@
+.header {
+    padding: 10px 20px;
+    display: flex;
+    flex-direction: column;
+    transition: background-color 0.3s, color 0.3s;
+  }
+  
+  .header.light {
+    background-color: #f5f5f5;
+    color: #373737;
+  }
+  
+  .header.dark {
+    background-color: #373737;
+    color: #f5f5f5;
+  }
+  
+  .theme-switcher .sun-icon {
+    color: white;
+  }
+  
+  .theme-switcher .moon-icon {
+    color: #dcfa00;
+  }
+  
+  .header.light .sun-icon {
+    color: #dcfa00;
+  }
+  
+  .header.light .moon-icon {
+    color: #373737;
+  }
+  
+  .theme-switcher .sun-icon,
+  .theme-switcher .moon-icon {
+    cursor: pointer;
+    transition: color 0.3s;
+  }
+  
+  .up {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 10px;
+    flex-wrap: wrap;
+  }
+  
+  .logo {
+    font-size: 24px;
+    font-weight: bold;
+  }
+  
+  .location {
+    display: flex;
+    align-items: center;
+    margin: 0 20px;
+  }
+  
+  .location-icon {
+    margin-right: 5px;
+  }
+  
+  .search-bar {
+    display: flex;
+    align-items: center;
+    flex-grow: 0.5;
+    margin: 0 20px;
+    min-width: 50px;
+  }
+  
+  .search-bar input {
+    padding: 5px;
+    border: none;
+    border-radius: 3px;
+    width: 100%;
+  }
+  
+  .search-icon {
+    margin-left: 10px;
+    cursor: pointer;
+  }
+  
+  .icons {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin: 0 20px;
+  }
+  
+  .cart-icon,
+  .profile-icon {
+    cursor: pointer;
+  }
+  
+  .contact {
+    display: flex;
+    align-items: center;
+  }
+  
+  .phone-icon {
+    margin-right: 10px;
+    cursor: pointer;
+  }
+  
+  .language-switcher {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin: 0 20px;
+  }
+  
+  .language-switcher span {
+    cursor: pointer;
+  }
+  
+  .language-switcher .active {
+    text-decoration: underline;
+    color: #dcfa00;
+  }
+  
+  .theme-switcher {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0 20px;
+  }
+  
+  .theme-switcher .active {
+    fill: #dcfa00;
+  }
+  
+  .down {
+    padding: 10px 0;
+  }
+  
+  .nav ul {
+    list-style: none;
+    display: flex;
+    justify-content: space-between;
+    padding: 0 20px;
+  }
+  
+  .nav ul li {
+    cursor: pointer;
+    padding: 0 10px;
+    white-space: nowrap;
+  }
+  
+  .nav ul li.active {
+    color: #dcfa00;
+    text-decoration: underline;
+  }
+  
+  .nav ul li:hover {
+    color: #dcfa00;
+  }
+  
+  .search-icon:hover,
+  .phone-icon:hover,
+  .cart-icon:hover,
+  .profile-icon:hover {
+    color: #dcfa00;
+  }
