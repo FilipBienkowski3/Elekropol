@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useContext } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -9,8 +9,10 @@ import {
   faUser,
   faSun,
   faMoon,
+  faSignOutAlt
 } from '@fortawesome/free-solid-svg-icons';
 import './Header.css';
+import { UserContext } from '../../App';
 
 export interface HeaderProps {
   theme: 'light' | 'dark';
@@ -19,9 +21,34 @@ export interface HeaderProps {
 
 const Header: React.FC<HeaderProps> = ({ theme, toggleTheme }) => {
   const navigate = useNavigate();
+  const { user, setUser } = useContext(UserContext)!;
+  const [showUserMenu, setShowUserMenu] = useState(false);
 
   const handleProfileClick = () => {
-    navigate('/logowanie');
+    if (user) {
+      setShowUserMenu(!showUserMenu);
+    } else {
+      navigate('/logowanie');
+    }
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    setUser(null);
+    setShowUserMenu(false);
+    navigate('/');
+
+    const notification = document.createElement('div');
+    notification.className = 'notification success';
+    notification.textContent = 'Wylogowano pomyślnie';
+    document.body.appendChild(notification);
+
+    setTimeout(() => {
+      notification.classList.add('notification-hide');
+      setTimeout(() => {
+        document.body.removeChild(notification);
+      }, 300);
+    }, 3000);
   };
 
   const handleHomeClick = () => {
@@ -73,11 +100,21 @@ const Header: React.FC<HeaderProps> = ({ theme, toggleTheme }) => {
         </div>
         <div className="icons">
           <FontAwesomeIcon icon={faShoppingCart} className="cart-icon" />
-          <FontAwesomeIcon 
-            icon={faUser} 
-            className="profile-icon" 
-            onClick={handleProfileClick}
-          />
+          <div className="user-container">
+            {user && <span className="user-greeting">Cześć, {user.firstName}!</span>}
+            <FontAwesomeIcon
+              icon={faUser}
+              className="profile-icon"
+              onClick={handleProfileClick}
+            />
+            {showUserMenu && user && (
+              <div className="user-menu">
+                <div className="user-menu-item" onClick={handleLogout}>
+                  <FontAwesomeIcon icon={faSignOutAlt} /> Wyloguj
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </div>
       <div className="down">

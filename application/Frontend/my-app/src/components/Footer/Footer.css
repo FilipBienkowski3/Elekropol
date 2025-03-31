@@ -14,7 +14,15 @@
     background-color: #373737;
     color: #f5f5f5;
   }
+
+  .footer.light .social-icon {
+    color: #373737;
+  }
   
+  .footer.dark .social-icon {
+    color: #f5f5f5;
+  }
+
   .footer-content {
     display: flex;
     justify-content: space-around;
@@ -49,14 +57,14 @@
     font-size: 24px;
     color: inherit;
     transition: color 0.3s;
+
   }
   
   .social-icon:hover {
-    color: #dcfa00;
+    color: #dcfa00 !important;
   }
   
   .footer-bottom {
-    border-top: 1px solid #555;
     padding-top: 10px;
     margin-top: 20px;
   }

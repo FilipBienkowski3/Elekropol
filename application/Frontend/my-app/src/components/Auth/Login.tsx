@@ -1,12 +1,28 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import './Auth.css';
+import { UserContext } from '../../App';
+
+interface LoginResponse {
+  success: boolean;
+  message: string;
+  user?: {
+    id: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+    type: string;
+  };
+  token?: string;
+}
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
+  const [errors, setErrors] = useState<{ email?: string; password?: string; general?: string }>({});
+  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
+  const { setUser } = useContext(UserContext)!;
 
   const validateForm = () => {
     const newErrors: { email?: string; password?: string } = {};
@@ -32,12 +48,57 @@ const Login: React.FC = () => {
     return isValid;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (validateForm()) {
-      console.log('Logowanie:', { email, password });
-      navigate('/');
+      try {
+        const response = await fetch('http://localhost:3000/clients/login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ email, password }),
+        });
+
+        const data: LoginResponse = await response.json();
+
+        if (data.success && data.token && data.user) {
+          localStorage.setItem('token', data.token);
+
+          setUser(data.user);
+
+          showNotification('Zalogowano pomyślnie', 'success');
+
+          navigate('/');
+        } else {
+          showNotification(data.message || 'Błędne dane logowania', 'error');
+          setErrors({ general: data.message || 'Błędne dane logowania' });
+        }
+      } catch (error) {
+        console.error('Błąd logowania:', error);
+        showNotification('Wystąpił błąd podczas logowania', 'error');
+        setErrors({ general: 'Wystąpił błąd podczas logowania' });
+      }
     }
+  };
+
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
+
+  const showNotification = (message: string, type: 'success' | 'error') => {
+    const notification = document.createElement('div');
+    notification.className = `notification ${type}`;
+    notification.textContent = message;
+
+    document.body.appendChild(notification);
+
+    setTimeout(() => {
+      notification.classList.add('notification-hide');
+      setTimeout(() => {
+        document.body.removeChild(notification);
+      }, 300);
+    }, 1000);
   };
 
   return (
@@ -62,15 +123,25 @@ const Login: React.FC = () => {
           </div>
           <div className="form-group">
             <label htmlFor="password">Hasło</label>
-            <input
-              type="password"
-              id="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className={errors.password ? 'error' : ''}
-            />
+            <div className="password-input-container">
+              <input
+                type={showPassword ? "text" : "password"}
+                id="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className={errors.password ? 'error' : ''}
+              />
+              <button
+                type="button"
+                className="password-toggle"
+                onClick={togglePasswordVisibility}
+              >
+                {showPassword ? '👁️' : '👁️‍🗨️'}
+              </button>
+            </div>
             {errors.password && <span className="error-message">{errors.password}</span>}
           </div>
+          {errors.general && <div className="general-error">{errors.general}</div>}
           <button type="submit" className="auth-button">Zaloguj się</button>
         </form>
         <div className="auth-links">
