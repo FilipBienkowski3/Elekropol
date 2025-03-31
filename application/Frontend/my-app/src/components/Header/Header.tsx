@@ -1,5 +1,6 @@
 import React from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { useNavigate } from 'react-router-dom';
 import {
   faSearch,
   faPhone,
@@ -17,6 +18,16 @@ export interface HeaderProps {
 }
 
 const Header: React.FC<HeaderProps> = ({ theme, toggleTheme }) => {
+  const navigate = useNavigate();
+
+  const handleProfileClick = () => {
+    navigate('/logowanie');
+  };
+
+  const handleHomeClick = () => {
+    navigate('/');
+  };
+
   return (
     <header className={`header ${theme}`}>
       <div className="up">
@@ -62,13 +73,17 @@ const Header: React.FC<HeaderProps> = ({ theme, toggleTheme }) => {
         </div>
         <div className="icons">
           <FontAwesomeIcon icon={faShoppingCart} className="cart-icon" />
-          <FontAwesomeIcon icon={faUser} className="profile-icon" />
+          <FontAwesomeIcon 
+            icon={faUser} 
+            className="profile-icon" 
+            onClick={handleProfileClick}
+          />
         </div>
       </div>
       <div className="down">
         <nav className="nav">
           <ul>
-            <li className="active">Strona główna</li>
+            <li className="active" onClick={handleHomeClick}>Strona główna</li>
             <li>Promocje</li>
             <li>Laptopy</li>
             <li>Komputery</li>

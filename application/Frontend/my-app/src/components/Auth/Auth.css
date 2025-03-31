@@ -1,0 +1,146 @@
+.auth-container {
+    width: 100%;
+    max-width: 800px;
+    margin: 20px auto;
+    background-color: #373737;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+  }
+  
+  .auth-tabs {
+    display: flex;
+    background-color: #2a2a2a;
+  }
+  
+  .auth-tab {
+    flex: 1;
+    padding: 15px;
+    text-align: center;
+    cursor: pointer;
+    color: #f5f5f5;
+    text-decoration: none;
+    font-weight: 500;
+    border-bottom: 3px solid transparent;
+    transition: all 0.3s;
+  }
+  
+  .auth-tab.active {
+    border-bottom: 3px solid #dcfa00;
+    color: #dcfa00;
+  }
+  
+  .auth-form-container {
+    padding: 30px;
+    color: #f5f5f5;
+  }
+  
+  .auth-form-container h2 {
+    margin-top: 0;
+    margin-bottom: 20px;
+    text-align: center;
+    font-size: 24px;
+  }
+  
+  .auth-form-container h3 {
+    margin-top: 20px;
+    margin-bottom: 15px;
+    font-size: 18px;
+    color: #dcfa00;
+  }
+  
+  .auth-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  .form-row {
+    display: flex;
+    gap: 15px;
+  }
+  
+  .form-group {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 15px;
+  }
+  
+  .form-group label {
+    margin-bottom: 5px;
+    font-size: 14px;
+  }
+  
+  .form-group input,
+  .form-group select {
+    padding: 10px;
+    border: 1px solid #555;
+    border-radius: 4px;
+    background-color: #444;
+    color: #f5f5f5;
+    font-size: 16px;
+  }
+  
+  .form-group input:focus,
+  .form-group select:focus {
+    outline: none;
+    border-color: #dcfa00;
+  }
+  
+  .form-group input.error,
+  .form-group select.error {
+    border-color: #ff5555;
+  }
+  
+  .error-message {
+    font-size: 12px;
+    color: #ff5555;
+    margin-top: 5px;
+  }
+  
+  .auth-button {
+    padding: 12px;
+    background-color: #dcfa00;
+    color: #373737;
+    border: none;
+    border-radius: 4px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    margin-top: 10px;
+  }
+  
+  .auth-button:hover {
+    background-color: #bbdc00;
+  }
+  
+  .auth-links {
+    margin-top: 20px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .auth-links a {
+    color: #dcfa00;
+    text-decoration: none;
+  }
+  
+  .auth-links a:hover {
+    text-decoration: underline;
+  }
+  
+  @media (max-width: 768px) {
+    .auth-container {
+      width: 95%;
+      margin: 10px auto;
+    }
+    
+    .form-row {
+      flex-direction: column;
+      gap: 0;
+    }
+  }
