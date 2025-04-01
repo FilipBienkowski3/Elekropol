@@ -1,6 +1,6 @@
 import React, { useState, useContext } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import {
   faSearch,
   faPhone,
@@ -9,7 +9,10 @@ import {
   faUser,
   faSun,
   faMoon,
-  faSignOutAlt
+  faSignOutAlt,
+  faPlus,
+  faTrash,
+  faUsers
 } from '@fortawesome/free-solid-svg-icons';
 import './Header.css';
 import { UserContext } from '../../App';
@@ -21,6 +24,7 @@ export interface HeaderProps {
 
 const Header: React.FC<HeaderProps> = ({ theme, toggleTheme }) => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { user, setUser } = useContext(UserContext)!;
   const [showUserMenu, setShowUserMenu] = useState(false);
 
@@ -53,6 +57,18 @@ const Header: React.FC<HeaderProps> = ({ theme, toggleTheme }) => {
 
   const handleHomeClick = () => {
     navigate('/');
+  };
+
+  const handleAddProductClick = () => {
+    navigate('/add-product');
+  };
+
+  const handleDeleteProductClick = () => {
+    navigate('/delete-product');
+  };
+
+  const handleDeleteUserClick = () => {
+    navigate('/delete-user');
   };
 
   return (
@@ -120,17 +136,48 @@ const Header: React.FC<HeaderProps> = ({ theme, toggleTheme }) => {
       <div className="down">
         <nav className="nav">
           <ul>
-            <li className="active" onClick={handleHomeClick}>Strona główna</li>
-            <li>Promocje</li>
-            <li>Laptopy</li>
-            <li>Komputery</li>
-            <li>Podzespoły komputerowe</li>
-            <li>TV i audio</li>
-            <li>Smart home i lifestyle</li>
-            <li>Akcesoria</li>
-            <li>Smartfony i smartwatche</li>
-            <li>Gaming i streaming</li>
-            <li>Urządzenia peryferyjne</li>
+            <li
+              className={location.pathname === '/' ? 'active' : ''}
+              onClick={handleHomeClick}
+            >
+              Strona główna
+            </li>
+            {user?.type === 'manager' && (
+              <>
+                <li
+                  className={location.pathname === '/add-product' ? 'active' : ''}
+                  onClick={handleAddProductClick}
+                >
+                  <FontAwesomeIcon icon={faPlus} /> Dodaj produkt
+                </li>
+                <li
+                  className={location.pathname === '/delete-product' ? 'active' : ''}
+                  onClick={handleDeleteProductClick}
+                >
+                  <FontAwesomeIcon icon={faTrash} /> Usuń produkt
+                </li>
+                <li
+                  className={location.pathname === '/delete-user' ? 'active' : ''}
+                  onClick={handleDeleteUserClick}
+                >
+                  <FontAwesomeIcon icon={faUsers} /> Usuń użytkownika
+                </li>
+              </>
+            )}
+            {(user === null || user?.type === 'client') && (
+              <>
+                <li>Promocje</li>
+                <li>Laptopy</li>
+                <li>Komputery</li>
+                <li>Podzespoły komputerowe</li>
+                <li>TV i audio</li>
+                <li>Smart home i lifestyle</li>
+                <li>Akcesoria</li>
+                <li>Smartfony i smartwatche</li>
+                <li>Gaming i streaming</li>
+                <li>Urządzenia peryferyjne</li>
+              </>
+            )}
           </ul>
         </nav>
       </div>
