@@ -7,6 +7,7 @@ import Login from './components/Auth/Login';
 import Register from './components/Auth/Register';
 import DeleteUser from './components/DeleteUser/DeleteUser';
 import AddProduct from './components/AddProduct/AddProduct';
+import DeleteProduct from './components/DeleteProduct/DeleteProduct';
 import './App.css';
 
 export interface UserContextType {
@@ -75,6 +76,14 @@ const App: React.FC = () => {
                   </ManagerRoute>
                 }
               />
+              <Route
+              path="/delete-product"
+              element={
+                <ManagerRoute>
+                  <DeleteProduct />
+                </ManagerRoute>
+              }
+              />  
             </Routes>
           </div>
           <Footer theme={theme} />
