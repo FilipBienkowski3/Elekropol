@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import './Auth.css';
+import { UserContext } from '../../App';
 
 interface RegisterForm {
   firstName: string;
@@ -24,6 +25,7 @@ interface RegisterErrors {
   city?: string;
   postalCode?: string;
   country?: string;
+  general?: string;
 }
 
 const Register: React.FC = () => {
@@ -40,6 +42,7 @@ const Register: React.FC = () => {
   });
   const [errors, setErrors] = useState<RegisterErrors>({});
   const navigate = useNavigate();
+  const { setUser } = useContext(UserContext)!; // Użyj kontekstu
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -114,11 +117,42 @@ const Register: React.FC = () => {
     return isValid;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (validateForm()) {
-      console.log('Rejestracja:', form);
-      navigate('/logowanie');
+      try {
+        const response = await fetch('http://localhost:3000/clients/register', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            firstName: form.firstName,
+            lastName: form.lastName,
+            email: form.email,
+            password: form.password,
+            street: form.street,
+            city: form.city,
+            postalCode: form.postalCode,
+            country: form.country
+          }),
+        });
+
+        const data = await response.json();
+
+        if (data.success && data.user && data.token) {
+          localStorage.setItem('token', data.token);
+
+          setUser(data.user);
+
+          navigate('/');
+        } else {
+          setErrors({ ...errors, general: data.message || 'Błąd rejestracji' });
+        }
+      } catch (error) {
+        console.error('Błąd rejestracji:', error);
+        setErrors({ ...errors, general: 'Wystąpił błąd podczas rejestracji' });
+      }
     }
   };
 
@@ -251,6 +285,7 @@ const Register: React.FC = () => {
             </select>
             {errors.country && <span className="error-message">{errors.country}</span>}
           </div>
+          {errors.general && <div className="general-error">{errors.general}</div>}
           <button type="submit" className="auth-button">Zarejestruj się</button>
         </form>
         <div className="auth-links">

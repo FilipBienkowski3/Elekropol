@@ -16,7 +16,7 @@ const cors = require('cors');
  app.use(cors({
    origin: 'http://localhost:3001',
    methods: ['GET', 'POST', 'PUT', 'DELETE'],
-   allowedHeaders: ['Content-Type','Authorization']
+   allowedHeaders: ['Content-Type','Authorization','Access-Control-Allow-Origin']
  }));
  
  app.set('views', path.join(__dirname, 'views'));
