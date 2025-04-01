@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Route, Routes} from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import Header from './components/Header/Header';
 import Footer from './components/Footer/Footer';
 import Home from './components/Home';
 import Login from './components/Auth/Login';
 import Register from './components/Auth/Register';
+import DeleteUser from './components/DeleteUser/DeleteUser';
+import AddProduct from './components/AddProduct/AddProduct';
 import './App.css';
 
 export interface UserContextType {
@@ -40,6 +42,13 @@ const App: React.FC = () => {
     setTheme((prev) => (prev === 'light' ? 'dark' : 'light'));
   };
 
+  const ManagerRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+    if (!user || user.type !== 'manager') {
+      return <Navigate to="/" replace />;
+    }
+    return <>{children}</>;
+  };
+
   return (
     <UserContext.Provider value={{ user, setUser }}>
       <Router>
@@ -50,6 +59,22 @@ const App: React.FC = () => {
               <Route path="/" element={<Home />} />
               <Route path="/logowanie" element={<Login />} />
               <Route path="/rejestracja" element={<Register />} />
+              <Route
+                path="/delete-user"
+                element={
+                  <ManagerRoute>
+                    <DeleteUser />
+                  </ManagerRoute>
+                }
+              />
+              <Route
+                path="/add-product"
+                element={
+                  <ManagerRoute>
+                    <AddProduct />
+                  </ManagerRoute>
+                }
+              />
             </Routes>
           </div>
           <Footer theme={theme} />
