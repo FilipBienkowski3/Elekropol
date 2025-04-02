@@ -8,12 +8,12 @@ interface Product {
   _id: string;
   name: string;
   price: number;
-  description: string;
+  productCode: string; 
   image: string;
 }
 
 const DeleteProduct: React.FC = () => {
-  const [products, setProducts] = useState<Product[]>([]); 
+  const [products, setProducts] = useState<Product[]>([]);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -62,8 +62,10 @@ const DeleteProduct: React.FC = () => {
             <div className="product-info">
               <h2>{product.name}</h2>
               <p>Cena: {product.price} zł</p>
-              <p>Opis: {product.description}</p>
-              <img src={product.image} alt={product.name} className="product-image" />
+              <p>Kod produktu: {product.productCode}</p>
+              <div className="product-image-container">
+                <img src={product.image} alt={product.name} className="product-image" />
+              </div>
             </div>
             <button
               className="delete-button"
