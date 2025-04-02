@@ -1,31 +1,51 @@
 const express = require('express');
 const router = express.Router();
-const models = require('../db');
+const multer = require('multer');
+const cloudinary = require('../cloudinaryConfig');
+const { Product } = require('../db');
+
+const upload = multer({ dest: 'uploads/' });
 
 router.get('/', async (req, res) => {
   try {
-    const products = await models.Product.find({});
+    const products = await Product.find({});
     res.json(products);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 });
 
-router.post('/create', async (req, res) => {
+router.post('/create', upload.single('image'), async (req, res) => {
+  const { name, price, description, shortDescription, category, available, quantity, warranty, productCode } = req.body;
+
   try {
-    const { name, price, description, shortDescription, image, category, available, quantity, warranty, productCode } = req.body;
-    const newProduct = new models.Product({ name, price, description, shortDescription, image, category, available, quantity, warranty, productCode });
+    const result = await cloudinary.uploader.upload(req.file.path);
+
+    const newProduct = new Product({
+      name,
+      price,
+      description,
+      shortDescription,
+      image: result.secure_url,
+      category,
+      available,
+      quantity,
+      warranty,
+      productCode
+    });
+
     const savedProduct = await newProduct.save();
     res.status(201).json(savedProduct);
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    console.error('Błąd:', error);
+    res.status(500).json({ error: 'Wystąpił błąd podczas dodawania produktu' });
   }
 });
 
 router.put('/update/:id', async (req, res) => {
   try {
     const { name, price, description, shortDescription, image, category, available, quantity, warranty, productCode } = req.body;
-    const updatedProduct = await models.Product.findByIdAndUpdate(
+    const updatedProduct = await Product.findByIdAndUpdate(
       req.params.id,
       { name, price, description, shortDescription, image, category, available, quantity, warranty, productCode },
       { new: true }
@@ -43,7 +63,7 @@ router.put('/update/:id', async (req, res) => {
 
 router.delete('/delete/:id', async (req, res) => {
   try {
-    const result = await models.Product.findByIdAndDelete(req.params.id);
+    const result = await Product.findByIdAndDelete(req.params.id);
     if (!result) {
       return res.status(404).json({ message: 'Product not found' });
     }

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useDropzone } from 'react-dropzone';
 import './AddProduct.css';
 
 const AddProduct: React.FC = () => {
@@ -7,12 +8,24 @@ const AddProduct: React.FC = () => {
     price: 0,
     description: '',
     shortDescription: '',
-    image: '',
+    image: null as File | null,
     category: '',
     available: true,
     quantity: 0,
     warranty: '',
     productCode: ''
+  });
+
+  const { getRootProps, getInputProps } = useDropzone({
+    accept: {
+      'image/*': ['.jpeg', '.png', '.jpg', '.gif']
+    },
+    onDrop: (acceptedFiles) => {
+      setFormData({
+        ...formData,
+        image: acceptedFiles[0]
+      });
+    }
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -26,13 +39,24 @@ const AddProduct: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    const data = new FormData();
+    data.append('name', formData.name);
+    data.append('price', formData.price.toString());
+    data.append('description', formData.description);
+    data.append('shortDescription', formData.shortDescription);
+    data.append('category', formData.category);
+    data.append('available', formData.available.toString());
+    data.append('quantity', formData.quantity.toString());
+    data.append('warranty', formData.warranty);
+    data.append('productCode', formData.productCode);
+    if (formData.image) {
+      data.append('image', formData.image);
+    }
+
     try {
       const response = await fetch('http://localhost:3000/products/create', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
+        body: data
       });
 
       if (!response.ok) {
@@ -44,7 +68,7 @@ const AddProduct: React.FC = () => {
         price: 0,
         description: '',
         shortDescription: '',
-        image: '',
+        image: null,
         category: '',
         available: true,
         quantity: 0,
@@ -80,8 +104,15 @@ const AddProduct: React.FC = () => {
           <input type="text" name="shortDescription" value={formData.shortDescription} onChange={handleChange} required />
         </div>
         <div className="form-group">
-          <label>URL zdjęcia:</label>
-          <input type="text" name="image" value={formData.image} onChange={handleChange} required />
+          <label>Zdjęcie:</label>
+          <div {...getRootProps()} className="dropzone">
+            <input {...getInputProps()} />
+            {formData.image ? (
+              <p>Wybrane zdjęcie: {formData.image.name}</p>
+            ) : (
+              <p>Przeciągnij i upuść zdjęcie tutaj lub kliknij, aby wybrać plik.</p>
+            )}
+          </div>
         </div>
         <div className="form-group">
           <label>Kategoria:</label>
