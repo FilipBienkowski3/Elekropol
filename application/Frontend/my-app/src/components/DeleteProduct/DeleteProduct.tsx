@@ -8,7 +8,7 @@ interface Product {
   _id: string;
   name: string;
   price: number;
-  productCode: string; 
+  productCode: string;
   image: string;
 }
 
@@ -56,22 +56,26 @@ const DeleteProduct: React.FC = () => {
   return (
     <div className="delete-product-container">
       <h1>Usuń produkt</h1>
-      <div className="product-grid">
+      <div className="delete-product-grid">
         {products.map((product) => (
-          <div key={product._id} className="product-card">
-            <div className="product-info">
+          <div key={product._id} className="delete-product-card">
+            <div className="delete-product-info">
               <h2>{product.name}</h2>
               <p>Cena: {product.price} zł</p>
               <p>Kod produktu: {product.productCode}</p>
-              <div className="product-image-container">
-                <img src={product.image} alt={product.name} className="product-image" />
+              <div className="delete-product-image-container">
+                <img 
+                  src={product.image} 
+                  alt={product.name} 
+                  className="delete-product-image" 
+                />
               </div>
             </div>
-            <button
-              className="delete-button"
+            <button 
+              className="delete-product-button" 
               onClick={() => handleDeleteProduct(product._id)}
             >
-              <FontAwesomeIcon icon={faTrash} />
+              <FontAwesomeIcon icon={faTrash} /> Usuń
             </button>
           </div>
         ))}

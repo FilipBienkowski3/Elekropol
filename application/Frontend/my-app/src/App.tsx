@@ -2,14 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import Header from './components/Header/Header';
 import Footer from './components/Footer/Footer';
-import Home from './components/Home';
+import Home from './components/Home/Home';
 import Login from './components/Auth/Login';
 import Register from './components/Auth/Register';
 import DeleteUser from './components/DeleteUser/DeleteUser';
 import AddProduct from './components/AddProduct/AddProduct';
 import DeleteProduct from './components/DeleteProduct/DeleteProduct';
 import './App.css';
-
+import ProductPage from './components/ProductPage/ProductPage'; 
 export interface UserContextType {
   user: {
     id: string;
