@@ -31,7 +31,9 @@ const ProductPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [newOpinion, setNewOpinion] = useState('');
   const [rating, setRating] = useState<number>(5);
-  const { user } = useContext(UserContext)!;
+  const [quantity, setQuantity] = useState<number>(1);
+  const { user, cart, setCart } = useContext(UserContext)!;
+  const [showSuccessPopup, setShowSuccessPopup] = useState(false);
 
   useEffect(() => {
     const fetchProductDetails = async () => {
@@ -57,6 +59,43 @@ const ProductPage: React.FC = () => {
     }
   }, [productCode]);
 
+  const handleAddToCart = () => {
+    if (!product) return;
+
+    const existingItem = cart.find((item) => item.productCode === product.productCode);
+
+    if (existingItem) {
+      const newQuantity = existingItem.quantity + quantity;
+      if (newQuantity > product.quantity) {
+        return;
+      }
+      setCart((prevCart) =>
+        prevCart.map((item) =>
+          item.productCode === product.productCode
+            ? { ...item, quantity: newQuantity }
+            : item
+        )
+      );
+    } else {
+      if (quantity > product.quantity) {
+        return;
+      }
+      setCart((prevCart) => [
+        ...prevCart,
+        {
+          productCode: product.productCode,
+          name: product.name,
+          price: product.price,
+          quantity,
+          maxQuantity: product.quantity,
+          image: product.image,
+        },
+      ]);
+    }
+    setShowSuccessPopup(true);
+    setTimeout(() => setShowSuccessPopup(false), 1000);
+  };
+
   const handleOpinionSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (newOpinion.trim()) {
@@ -65,7 +104,7 @@ const ProductPage: React.FC = () => {
         author,
         comment: newOpinion,
         rating: rating,
-        date: new Date().toISOString()
+        date: new Date().toISOString(),
       };
 
       try {
@@ -74,7 +113,7 @@ const ProductPage: React.FC = () => {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
+            'Authorization': `Bearer ${token}`,
           },
           body: JSON.stringify(newReview),
         });
@@ -82,16 +121,14 @@ const ProductPage: React.FC = () => {
         if (response.ok) {
           setNewOpinion('');
           setRating(5);
-          alert('Opinia dodana pomyślnie!');
           const updatedProduct = await response.json();
           setProduct(updatedProduct);
         } else {
           const errorData = await response.json();
-          alert(`Wystąpił błąd: ${errorData.message || 'Nieznany błąd'}`);
+          console.error('Error submitting review:', errorData.message);
         }
       } catch (error) {
         console.error('Error submitting review:', error);
-        alert('Wystąpił błąd podczas dodawania opinii.');
       }
     }
   };
@@ -106,6 +143,11 @@ const ProductPage: React.FC = () => {
 
   return (
     <div className="product-page-container">
+      {showSuccessPopup && (
+        <div className="success-popup">
+          Produkt dodany do koszyka!
+        </div>
+      )}
       <div className="product-main">
         <div className="product-gallery">
           <div className="product-main-image">
@@ -122,29 +164,28 @@ const ProductPage: React.FC = () => {
           <h1 className="product-title">{product.name}</h1>
           <div className="product-price">{product.price} PLN</div>
 
-          <div className="product-tabs">
-            <div className="tab-section">
-              <h2>Informacje o produkcie</h2>
-              <div className="product-specs">
-                <div className="spec-row">
-                  <div className="spec-name">Kategoria:</div>
-                  <div className="spec-value">{product.category}</div>
-                </div>
-                <div className="spec-row">
-                  <div className="spec-name">Dostępność:</div>
-                  <div className="spec-value">{product.available ? 'Dostępny' : 'Niedostępny'}</div>
-                </div>
-                <div className="spec-row">
-                  <div className="spec-name">Gwarancja:</div>
-                  <div className="spec-value">{product.warranty}</div>
-                </div>
-                <div className="spec-row">
-                  <div className="spec-name">Opis:</div>
-                  <div className="spec-value">{product.description}</div>
-                </div>
-              </div>
-            </div>
+          <div className="product-description">
+            <h2>Opis produktu</h2>
+            <p>{product.description}</p>
+          </div>
 
+          <div className="add-to-cart-section">
+            <label htmlFor="quantity">Ilość:</label>
+            <input
+              type="number"
+              id="quantity"
+              value={quantity}
+              min="1"
+              max={product.quantity}
+              onChange={(e) => setQuantity(Math.max(1, Math.min(product.quantity, Number(e.target.value))))}
+              className="quantity-input"
+            />
+            <button className="add-to-cart-button" onClick={handleAddToCart}>
+              Dodaj do koszyka
+            </button>
+          </div>
+
+          <div className="product-tabs">
             <div className="tab-section">
               <h2>OPINIE O PRODUKCIE</h2>
               <div className="opinions-list">
@@ -187,8 +228,6 @@ const ProductPage: React.FC = () => {
               </div>
             </div>
           </div>
-
-          <button className="add-to-cart-button">Dodaj do koszyka</button>
         </div>
       </div>
     </div>

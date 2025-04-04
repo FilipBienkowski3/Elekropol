@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { UserContext } from '../../App';
 import './Home.css';
 
 import carousel1 from '../../photos/carousel1.jpg';
@@ -16,7 +17,9 @@ interface Product {
 const Home: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [showSuccessPopup, setShowSuccessPopup] = useState(false);
   const navigate = useNavigate();
+  const { cart, setCart } = useContext(UserContext)!;
 
   const carouselImages = [carousel1, carousel2];
 
@@ -50,8 +53,43 @@ const Home: React.FC = () => {
     navigate(`/product/${productCode}`);
   };
 
+  const handleAddToCart = (product: Product) => {
+    const existingItem = cart.find((item) => item.productCode === product.productCode);
+
+    if (existingItem) {
+      const newQuantity = existingItem.quantity + 1;
+      setCart((prevCart) =>
+        prevCart.map((item) =>
+          item.productCode === product.productCode
+            ? { ...item, quantity: newQuantity }
+            : item
+        )
+      );
+    } else {
+      setCart((prevCart) => [
+        ...prevCart,
+        {
+          productCode: product.productCode,
+          name: product.name,
+          price: product.price,
+          quantity: 1,
+          maxQuantity: 10,
+          image: product.image,
+        },
+      ]);
+    }
+
+    setShowSuccessPopup(true);
+    setTimeout(() => setShowSuccessPopup(false), 1000);
+  };
+
   return (
     <div className="home-container">
+      {showSuccessPopup && (
+        <div className="success-popup">
+          Produkt dodany do koszyka!
+        </div>
+      )}
       <div className="home-carousel">
         <img
           src={carouselImages[currentImageIndex]}
@@ -79,7 +117,15 @@ const Home: React.FC = () => {
                   <h3>{product.name}</h3>
                   <p>{product.price} zł</p>
                 </div>
-                <button className="home-add-button">+</button>
+                <button 
+                  className="home-add-button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleAddToCart(product);
+                  }}
+                >
+                  +
+                </button>
               </div>
             </div>
           ))}

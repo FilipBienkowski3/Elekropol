@@ -8,8 +8,18 @@ import Register from './components/Auth/Register';
 import DeleteUser from './components/DeleteUser/DeleteUser';
 import AddProduct from './components/AddProduct/AddProduct';
 import DeleteProduct from './components/DeleteProduct/DeleteProduct';
-import ProductPage from './components/ProductPage/ProductPage'; 
+import ProductPage from './components/ProductPage/ProductPage';
+import CartPage from './components/CartPage/CartPage';
 import './App.css';
+
+export interface CartItem {
+  productCode: string;
+  name: string;
+  price: number;
+  quantity: number;
+  maxQuantity: number;
+  image: string;
+}
 
 export interface UserContextType {
   user: {
@@ -20,12 +30,16 @@ export interface UserContextType {
     type: string;
   } | null;
   setUser: React.Dispatch<React.SetStateAction<UserContextType['user']>>;
+  cart: CartItem[];
+  setCart: React.Dispatch<React.SetStateAction<CartItem[]>>;
 }
+
 export const UserContext = React.createContext<UserContextType | undefined>(undefined);
 
 const App: React.FC = () => {
   const [theme, setTheme] = useState<'light' | 'dark'>('dark');
   const [user, setUser] = useState<UserContextType['user']>(null);
+  const [cart, setCart] = useState<CartItem[]>([]);
 
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
@@ -51,7 +65,7 @@ const App: React.FC = () => {
   };
 
   return (
-    <UserContext.Provider value={{ user, setUser }}>
+    <UserContext.Provider value={{ user, setUser, cart, setCart }}>
       <Router>
         <div className={`app ${theme}`}>
           <Header theme={theme} toggleTheme={toggleTheme} />
@@ -85,6 +99,7 @@ const App: React.FC = () => {
                 }
               />
               <Route path="/product/:productCode" element={<ProductPage />} />
+              <Route path="/cart" element={<CartPage />} />
             </Routes>
           </div>
           <Footer theme={theme} />

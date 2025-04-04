@@ -58,7 +58,9 @@ const Header: React.FC<HeaderProps> = ({ theme, toggleTheme }) => {
   const handleHomeClick = () => {
     navigate('/');
   };
-
+  const handleCartClick = () => {
+    navigate('/cart');
+  };
   const handleAddProductClick = () => {
     navigate('/add-product');
   };
@@ -115,7 +117,7 @@ const Header: React.FC<HeaderProps> = ({ theme, toggleTheme }) => {
           />
         </div>
         <div className="icons">
-          <FontAwesomeIcon icon={faShoppingCart} className="cart-icon" />
+          <FontAwesomeIcon icon={faShoppingCart} className="cart-icon" onClick={handleCartClick} />
           <div className="user-container">
             {user && <span className="user-greeting">Cześć, {user.firstName}!</span>}
             <FontAwesomeIcon
