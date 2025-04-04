@@ -19,7 +19,7 @@ const Home: React.FC = () => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [showSuccessPopup, setShowSuccessPopup] = useState(false);
   const navigate = useNavigate();
-  const { cart, setCart } = useContext(UserContext)!;
+  const { cart, setCart, theme } = useContext(UserContext)!;
 
   const carouselImages = [carousel1, carousel2];
 
@@ -27,9 +27,7 @@ const Home: React.FC = () => {
     const fetchProducts = async () => {
       try {
         const response = await fetch('http://localhost:3000/products');
-        if (!response.ok) {
-          throw new Error('Błąd podczas pobierania produktów');
-        }
+        if (!response.ok) throw new Error('Błąd podczas pobierania produktów');
         const data = await response.json();
         const randomProducts = data.sort(() => 0.5 - Math.random()).slice(0, 5);
         setProducts(randomProducts);
@@ -45,87 +43,56 @@ const Home: React.FC = () => {
     const interval = setInterval(() => {
       setCurrentImageIndex((prevIndex) => (prevIndex + 1) % carouselImages.length);
     }, 5000);
-
     return () => clearInterval(interval);
   }, []);
 
-  const handleProductClick = (productCode: string) => {
-    navigate(`/product/${productCode}`);
-  };
+  const handleProductClick = (productCode: string) => navigate(`/product/${productCode}`);
 
   const handleAddToCart = (product: Product) => {
     const existingItem = cart.find((item) => item.productCode === product.productCode);
+    let updatedCart;
 
     if (existingItem) {
-      const newQuantity = existingItem.quantity + 1;
-      setCart((prevCart) =>
-        prevCart.map((item) =>
-          item.productCode === product.productCode
-            ? { ...item, quantity: newQuantity }
-            : item
-        )
+      updatedCart = cart.map((item) =>
+        item.productCode === product.productCode
+          ? { ...item, quantity: item.quantity + 1 }
+          : item
       );
     } else {
-      setCart((prevCart) => [
-        ...prevCart,
-        {
-          productCode: product.productCode,
-          name: product.name,
-          price: product.price,
-          quantity: 1,
-          maxQuantity: 10,
-          image: product.image,
-        },
-      ]);
+      updatedCart = [...cart, {
+        productCode: product.productCode,
+        name: product.name,
+        price: product.price,
+        quantity: 1,
+        maxQuantity: 10,
+        image: product.image,
+      }];
     }
 
+    setCart(updatedCart);
+    sessionStorage.setItem('cart', JSON.stringify(updatedCart));
     setShowSuccessPopup(true);
     setTimeout(() => setShowSuccessPopup(false), 1000);
   };
 
   return (
-    <div className="home-container">
-      {showSuccessPopup && (
-        <div className="success-popup">
-          Produkt dodany do koszyka!
-        </div>
-      )}
+    <div className={`home-container ${theme}`}>
+      {showSuccessPopup && <div className="success-popup">Produkt dodany do koszyka!</div>}
       <div className="home-carousel">
-        <img
-          src={carouselImages[currentImageIndex]}
-          alt="Carousel"
-          className="home-carousel-image"
-        />
+        <img src={carouselImages[currentImageIndex]} alt="Carousel" className="home-carousel-image" />
       </div>
-
       <div className="home-featured-section">
         <h2>Polecane</h2>
         <div className="home-product-grid">
           {products.map((product) => (
-            <div 
-              key={product._id} 
-              className="home-product-card" 
-              onClick={() => handleProductClick(product.productCode)}
-            >
-              <img 
-                src={product.image} 
-                alt={product.name} 
-                className="home-product-image" 
-              />
+            <div key={product._id} className="home-product-card" onClick={() => handleProductClick(product.productCode)}>
+              <img src={product.image} alt={product.name} className="home-product-image" />
               <div className="home-product-info">
                 <div className="home-product-info-text">
                   <h3>{product.name}</h3>
                   <p>{product.price} zł</p>
                 </div>
-                <button 
-                  className="home-add-button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleAddToCart(product);
-                  }}
-                >
-                  +
-                </button>
+                <button className="home-add-button" onClick={(e) => { e.stopPropagation(); handleAddToCart(product); }}>+</button>
               </div>
             </div>
           ))}

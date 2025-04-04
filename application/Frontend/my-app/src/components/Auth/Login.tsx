@@ -64,11 +64,9 @@ const Login: React.FC = () => {
 
         if (data.success && data.token && data.user) {
           localStorage.setItem('token', data.token);
-
+          localStorage.setItem('user', JSON.stringify(data.user));
           setUser(data.user);
-
           showNotification('Zalogowano pomyślnie', 'success');
-
           navigate('/');
         } else {
           showNotification(data.message || 'Błędne dane logowania', 'error');

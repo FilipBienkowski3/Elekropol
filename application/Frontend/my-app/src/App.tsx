@@ -21,37 +21,60 @@ export interface CartItem {
   image: string;
 }
 
+export interface User {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  type: string;
+}
+
 export interface UserContextType {
-  user: {
-    id: string;
-    firstName: string;
-    lastName: string;
-    email: string;
-    type: string;
-  } | null;
-  setUser: React.Dispatch<React.SetStateAction<UserContextType['user']>>;
+  user: User | null;
+  setUser: React.Dispatch<React.SetStateAction<User | null>>;
   cart: CartItem[];
   setCart: React.Dispatch<React.SetStateAction<CartItem[]>>;
+  theme: 'light' | 'dark';
+  toggleTheme: () => void;
 }
 
 export const UserContext = React.createContext<UserContextType | undefined>(undefined);
 
 const App: React.FC = () => {
   const [theme, setTheme] = useState<'light' | 'dark'>('dark');
-  const [user, setUser] = useState<UserContextType['user']>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [cart, setCart] = useState<CartItem[]>([]);
 
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
-    if (storedUser) {
+    const storedToken = localStorage.getItem('token');
+    
+    if (storedUser && storedToken) {
       try {
         setUser(JSON.parse(storedUser));
       } catch (error) {
-        console.error('Błąd parsowania danych użytkownika:', error);
         localStorage.removeItem('user');
+        localStorage.removeItem('token');
+      }
+    }
+    
+    const storedCart = sessionStorage.getItem('cart');
+    if (storedCart) {
+      try {
+        setCart(JSON.parse(storedCart));
+      } catch (error) {
+        sessionStorage.removeItem('cart');
       }
     }
   }, []);
+
+  useEffect(() => {
+    if (cart.length > 0) {
+      sessionStorage.setItem('cart', JSON.stringify(cart));
+    } else {
+      sessionStorage.removeItem('cart');
+    }
+  }, [cart]);
 
   const toggleTheme = () => {
     setTheme((prev) => (prev === 'light' ? 'dark' : 'light'));
@@ -65,44 +88,23 @@ const App: React.FC = () => {
   };
 
   return (
-    <UserContext.Provider value={{ user, setUser, cart, setCart }}>
+    <UserContext.Provider value={{ user, setUser, cart, setCart, theme, toggleTheme }}>
       <Router>
         <div className={`app ${theme}`}>
-          <Header theme={theme} toggleTheme={toggleTheme} />
+          <Header />
           <div className="main-content">
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/logowanie" element={<Login />} />
               <Route path="/rejestracja" element={<Register />} />
-              <Route
-                path="/delete-user"
-                element={
-                  <ManagerRoute>
-                    <DeleteUser />
-                  </ManagerRoute>
-                }
-              />
-              <Route
-                path="/add-product"
-                element={
-                  <ManagerRoute>
-                    <AddProduct />
-                  </ManagerRoute>
-                }
-              />
-              <Route
-                path="/delete-product"
-                element={
-                  <ManagerRoute>
-                    <DeleteProduct />
-                  </ManagerRoute>
-                }
-              />
+              <Route path="/delete-user" element={<ManagerRoute><DeleteUser /></ManagerRoute>} />
+              <Route path="/add-product" element={<ManagerRoute><AddProduct /></ManagerRoute>} />
+              <Route path="/delete-product" element={<ManagerRoute><DeleteProduct /></ManagerRoute>} />
               <Route path="/product/:productCode" element={<ProductPage />} />
               <Route path="/cart" element={<CartPage />} />
             </Routes>
           </div>
-          <Footer theme={theme} />
+          <Footer />
         </div>
       </Router>
     </UserContext.Provider>

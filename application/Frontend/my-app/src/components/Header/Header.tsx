@@ -17,15 +17,10 @@ import {
 import './Header.css';
 import { UserContext } from '../../App';
 
-export interface HeaderProps {
-  theme: 'light' | 'dark';
-  toggleTheme: () => void;
-}
-
-const Header: React.FC<HeaderProps> = ({ theme, toggleTheme }) => {
+const Header: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { user, setUser } = useContext(UserContext)!;
+  const { user, setUser, cart, setCart, theme, toggleTheme } = useContext(UserContext)!;
   const [showUserMenu, setShowUserMenu] = useState(false);
 
   const handleProfileClick = () => {
@@ -38,15 +33,18 @@ const Header: React.FC<HeaderProps> = ({ theme, toggleTheme }) => {
 
   const handleLogout = () => {
     localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    sessionStorage.removeItem('cart');
     setUser(null);
+    setCart([]);
     setShowUserMenu(false);
     navigate('/');
-
+    
     const notification = document.createElement('div');
     notification.className = 'notification success';
     notification.textContent = 'Wylogowano pomyślnie';
     document.body.appendChild(notification);
-
+  
     setTimeout(() => {
       notification.classList.add('notification-hide');
       setTimeout(() => {
@@ -55,28 +53,18 @@ const Header: React.FC<HeaderProps> = ({ theme, toggleTheme }) => {
     }, 3000);
   };
 
-  const handleHomeClick = () => {
-    navigate('/');
-  };
-  const handleCartClick = () => {
-    navigate('/cart');
-  };
-  const handleAddProductClick = () => {
-    navigate('/add-product');
-  };
-
-  const handleDeleteProductClick = () => {
-    navigate('/delete-product');
-  };
-
-  const handleDeleteUserClick = () => {
-    navigate('/delete-user');
-  };
+  const handleHomeClick = () => navigate('/');
+  const handleCartClick = () => navigate('/cart');
+  const handleAddProductClick = () => navigate('/add-product');
+  const handleDeleteProductClick = () => navigate('/delete-product');
+  const handleDeleteUserClick = () => navigate('/delete-user');
 
   return (
     <header className={`header ${theme}`}>
       <div className="up">
-        <div className="logo">ELEKTROPOL</div>
+        <div className={`logo ${location.pathname === '/' ? 'active' : ''}`} onClick={handleHomeClick}>
+          ELEKTROPOL
+        </div>
         <div className="location">
           <FontAwesomeIcon icon={faMapMarkerAlt} className="location-icon" />
           <span>Kraków</span>
@@ -90,41 +78,21 @@ const Header: React.FC<HeaderProps> = ({ theme, toggleTheme }) => {
           <span>+48 221 692 129</span>
         </div>
         <div className="language-switcher">
-          <span
-            className={theme === 'light' ? 'active' : ''}
-            onClick={() => toggleTheme()}
-          >
-            EN
-          </span>
-          |
-          <span
-            className={theme === 'dark' ? 'active' : ''}
-            onClick={() => toggleTheme()}
-          >
-            PL
-          </span>
+          <span className={theme === 'light' ? 'active' : ''} onClick={toggleTheme}>EN</span>|
+          <span className={theme === 'dark' ? 'active' : ''} onClick={toggleTheme}>PL</span>
         </div>
         <div className="theme-switcher">
-          <FontAwesomeIcon
-            icon={faSun}
-            className={`sun-icon ${theme === 'light' ? 'active' : ''}`}
-            onClick={toggleTheme}
-          />
-          <FontAwesomeIcon
-            icon={faMoon}
-            className={`moon-icon ${theme === 'dark' ? 'active' : ''}`}
-            onClick={toggleTheme}
-          />
+          <FontAwesomeIcon icon={faSun} className={`sun-icon ${theme === 'light' ? 'active' : ''}`} onClick={toggleTheme} />
+          <FontAwesomeIcon icon={faMoon} className={`moon-icon ${theme === 'dark' ? 'active' : ''}`} onClick={toggleTheme} />
         </div>
         <div className="icons">
-          <FontAwesomeIcon icon={faShoppingCart} className="cart-icon" onClick={handleCartClick} />
+          <div className="cart-container" onClick={handleCartClick}>
+            <FontAwesomeIcon icon={faShoppingCart} className="cart-icon" />
+            {cart.length > 0 && <span className="cart-badge">{cart.reduce((total, item) => total + item.quantity, 0)}</span>}
+          </div>
           <div className="user-container">
             {user && <span className="user-greeting">Cześć, {user.firstName}!</span>}
-            <FontAwesomeIcon
-              icon={faUser}
-              className="profile-icon"
-              onClick={handleProfileClick}
-            />
+            <FontAwesomeIcon icon={faUser} className="profile-icon" onClick={handleProfileClick} />
             {showUserMenu && user && (
               <div className="user-menu">
                 <div className="user-menu-item" onClick={handleLogout}>
@@ -138,30 +106,16 @@ const Header: React.FC<HeaderProps> = ({ theme, toggleTheme }) => {
       <div className="down">
         <nav className="nav">
           <ul>
-            <li
-              className={location.pathname === '/' ? 'active' : ''}
-              onClick={handleHomeClick}
-            >
-              Strona główna
-            </li>
+            <li className={location.pathname === '/' ? 'active' : ''} onClick={handleHomeClick}>Strona główna</li>
             {user?.type === 'manager' && (
               <>
-                <li
-                  className={location.pathname === '/add-product' ? 'active' : ''}
-                  onClick={handleAddProductClick}
-                >
+                <li className={location.pathname === '/add-product' ? 'active' : ''} onClick={handleAddProductClick}>
                   <FontAwesomeIcon icon={faPlus} /> Dodaj produkt
                 </li>
-                <li
-                  className={location.pathname === '/delete-product' ? 'active' : ''}
-                  onClick={handleDeleteProductClick}
-                >
+                <li className={location.pathname === '/delete-product' ? 'active' : ''} onClick={handleDeleteProductClick}>
                   <FontAwesomeIcon icon={faTrash} /> Usuń produkt
                 </li>
-                <li
-                  className={location.pathname === '/delete-user' ? 'active' : ''}
-                  onClick={handleDeleteUserClick}
-                >
+                <li className={location.pathname === '/delete-user' ? 'active' : ''} onClick={handleDeleteUserClick}>
                   <FontAwesomeIcon icon={faUsers} /> Usuń użytkownika
                 </li>
               </>

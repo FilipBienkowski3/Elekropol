@@ -34,6 +34,7 @@ const ProductPage: React.FC = () => {
   const [quantity, setQuantity] = useState<number>(1);
   const { user, cart, setCart } = useContext(UserContext)!;
   const [showSuccessPopup, setShowSuccessPopup] = useState(false);
+  const [showLoginPopup, setShowLoginPopup] = useState(false);
 
   useEffect(() => {
     const fetchProductDetails = async () => {
@@ -69,35 +70,43 @@ const ProductPage: React.FC = () => {
       if (newQuantity > product.quantity) {
         return;
       }
-      setCart((prevCart) =>
-        prevCart.map((item) =>
-          item.productCode === product.productCode
-            ? { ...item, quantity: newQuantity }
-            : item
-        )
+      const updatedCart = cart.map((item) =>
+        item.productCode === product.productCode
+          ? { ...item, quantity: newQuantity }
+          : item
       );
+      setCart(updatedCart);
+      sessionStorage.setItem('cart', JSON.stringify(updatedCart));
     } else {
       if (quantity > product.quantity) {
         return;
       }
-      setCart((prevCart) => [
-        ...prevCart,
-        {
-          productCode: product.productCode,
-          name: product.name,
-          price: product.price,
-          quantity,
-          maxQuantity: product.quantity,
-          image: product.image,
-        },
-      ]);
+      const newCartItem = {
+        productCode: product.productCode,
+        name: product.name,
+        price: product.price,
+        quantity,
+        maxQuantity: product.quantity,
+        image: product.image,
+      };
+      const updatedCart = [...cart, newCartItem];
+      setCart(updatedCart);
+      sessionStorage.setItem('cart', JSON.stringify(updatedCart));
     }
+    
     setShowSuccessPopup(true);
     setTimeout(() => setShowSuccessPopup(false), 1000);
   };
 
   const handleOpinionSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!user) {
+      setShowLoginPopup(true);
+      setTimeout(() => setShowLoginPopup(false), 2000);
+      return;
+    }
+    
     if (newOpinion.trim()) {
       const author = user ? `${user.firstName} ${user.lastName}` : 'Gość';
       const newReview = {
@@ -146,6 +155,11 @@ const ProductPage: React.FC = () => {
       {showSuccessPopup && (
         <div className="success-popup">
           Produkt dodany do koszyka!
+        </div>
+      )}
+      {showLoginPopup && (
+        <div className="error-popup">
+          Musisz być zalogowany, aby dodać opinię.
         </div>
       )}
       <div className="product-main">

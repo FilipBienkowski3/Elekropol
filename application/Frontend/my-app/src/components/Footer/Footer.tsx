@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faFacebook,
@@ -6,13 +6,12 @@ import {
   faInstagram,
   faLinkedin,
 } from '@fortawesome/free-brands-svg-icons';
+import { UserContext } from '../../App';
 import './Footer.css';
 
-export interface FooterProps {
-  theme: 'light' | 'dark';
-}
+const Footer: React.FC = () => {
+  const { theme } = useContext(UserContext)!;
 
-const Footer: React.FC<FooterProps> = ({ theme }) => {
   return (
     <footer className={`footer ${theme}`}>
       <div className="footer-content">
@@ -26,6 +25,7 @@ const Footer: React.FC<FooterProps> = ({ theme }) => {
           <h3>Kontakt</h3>
           <p>Email: kontakt@elektropol.pl</p>
           <p>Telefon: +48 221 692 129</p>
+          <p>Adres: ul. Elektroniczna 123, 30-001 Kraków</p>
         </div>
         <div className="footer-section">
           <h3>Śledź nas</h3>
@@ -46,7 +46,7 @@ const Footer: React.FC<FooterProps> = ({ theme }) => {
         </div>
       </div>
       <div className="footer-bottom">
-        <p>&copy; 2025 ELEKTROPOL. Wszystkie prawa zastrzeżone.</p>
+        <p>&copy; {new Date().getFullYear()} ELEKTROPOL. Wszystkie prawa zastrzeżone.</p>
       </div>
     </footer>
   );
