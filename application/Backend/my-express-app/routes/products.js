@@ -14,7 +14,51 @@ router.get('/', async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
+router.get('/:productCode', async (req, res) => {
+  const { productCode } = req.params;
 
+  try {
+    const product = await Product.findOne({ productCode });
+    if (!product) {
+      return res.status(404).json({ message: 'Product not found' });
+    }
+    res.json(product);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+router.post('/:productCode/reviews', async (req, res) => {
+  const { productCode } = req.params;
+  const { author, comment, rating, date } = req.body;
+
+  console.log('Received request to add review:', { productCode, author, comment, rating, date });
+
+  try {
+    const product = await Product.findOne({ productCode });
+    console.log('Product found:', product);
+
+    if (!product) {
+      console.error('Product not found:', productCode);
+      return res.status(404).json({ message: 'Product not found' });
+    }
+
+    if (!comment || !rating) {
+      console.error('Missing required fields:', { comment, rating });
+      return res.status(400).json({ message: 'Missing required fields: comment and rating' });
+    }
+
+    const newReview = { author, comment, rating, date };
+    product.reviews.push(newReview);
+
+    await product.save();
+    console.log('Review added successfully:', newReview);
+
+    res.status(201).json(product);
+  } catch (error) {
+    console.error('Error adding review:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
 router.post('/create', upload.single('image'), async (req, res) => {
   const { name, price, description, shortDescription, category, available, quantity, warranty, productCode } = req.body;
 
@@ -72,5 +116,6 @@ router.delete('/delete/:id', async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
+
 
 module.exports = router;

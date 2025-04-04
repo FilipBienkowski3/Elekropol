@@ -1,48 +1,196 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { useParams } from 'react-router-dom';
+import { UserContext } from '../../App';
 import './ProductPage.css';
 
-interface Product {
+interface ProductDetails {
   _id: string;
   name: string;
   price: number;
   description: string;
+  shortDescription: string;
   image: string;
+  category: string;
+  available: boolean;
+  quantity: number;
+  warranty: string;
   productCode: string;
+  reviews: Review[];
+}
+
+interface Review {
+  author: string;
+  comment: string;
+  rating: number;
+  date: string;
 }
 
 const ProductPage: React.FC = () => {
   const { productCode } = useParams<{ productCode: string }>();
-  const [product, setProduct] = useState<Product | null>(null);
+  const [product, setProduct] = useState<ProductDetails | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [newOpinion, setNewOpinion] = useState('');
+  const [rating, setRating] = useState<number>(5);
+  const { user } = useContext(UserContext)!;
 
   useEffect(() => {
-    const fetchProduct = async () => {
+    const fetchProductDetails = async () => {
       try {
+        setLoading(true);
         const response = await fetch(`http://localhost:3000/products/${productCode}`);
-        if (!response.ok) {
-          throw new Error('Błąd podczas pobierania produktu');
+        const productData = await response.json();
+        
+        if (productData) {
+          setProduct(productData);
+        } else {
+          console.error('Product not found');
         }
-        const data = await response.json();
-        setProduct(data);
       } catch (error) {
-        console.error('Błąd:', error);
+        console.error('Error fetching product details:', error);
+      } finally {
+        setLoading(false);
       }
     };
 
-    fetchProduct();
+    if (productCode) {
+      fetchProductDetails();
+    }
   }, [productCode]);
 
+  const handleOpinionSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (newOpinion.trim()) {
+      const author = user ? `${user.firstName} ${user.lastName}` : 'Gość';
+      const newReview = {
+        author,
+        comment: newOpinion,
+        rating: rating,
+        date: new Date().toISOString()
+      };
+
+      try {
+        const token = localStorage.getItem('token');
+        const response = await fetch(`http://localhost:3000/products/${productCode}/reviews`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify(newReview),
+        });
+
+        if (response.ok) {
+          setNewOpinion('');
+          setRating(5);
+          alert('Opinia dodana pomyślnie!');
+          const updatedProduct = await response.json();
+          setProduct(updatedProduct);
+        } else {
+          const errorData = await response.json();
+          alert(`Wystąpił błąd: ${errorData.message || 'Nieznany błąd'}`);
+        }
+      } catch (error) {
+        console.error('Error submitting review:', error);
+        alert('Wystąpił błąd podczas dodawania opinii.');
+      }
+    }
+  };
+
+  if (loading) {
+    return <div className="loading">Ładowanie...</div>;
+  }
+
   if (!product) {
-    return <div>Ładowanie...</div>;
+    return <div className="error">Produkt nie został znaleziony</div>;
   }
 
   return (
-    <div className="product-page">
-      <h1>{product.name}</h1>
-      <img src={product.image} alt={product.name} className="product-image" />
-      <p>{product.description}</p>
-      <p>Cena: {product.price} zł</p>
-      <p>Kod produktu: {product.productCode}</p>
+    <div className="product-page-container">
+      <div className="product-main">
+        <div className="product-gallery">
+          <div className="product-main-image">
+            <img src={product.image} alt={product.name} />
+          </div>
+          <div className="product-thumbnails">
+            <div className="thumbnail active">
+              <img src={product.image} alt={product.name} />
+            </div>
+          </div>
+        </div>
+
+        <div className="product-info">
+          <h1 className="product-title">{product.name}</h1>
+          <div className="product-price">{product.price} PLN</div>
+
+          <div className="product-tabs">
+            <div className="tab-section">
+              <h2>Informacje o produkcie</h2>
+              <div className="product-specs">
+                <div className="spec-row">
+                  <div className="spec-name">Kategoria:</div>
+                  <div className="spec-value">{product.category}</div>
+                </div>
+                <div className="spec-row">
+                  <div className="spec-name">Dostępność:</div>
+                  <div className="spec-value">{product.available ? 'Dostępny' : 'Niedostępny'}</div>
+                </div>
+                <div className="spec-row">
+                  <div className="spec-name">Gwarancja:</div>
+                  <div className="spec-value">{product.warranty}</div>
+                </div>
+                <div className="spec-row">
+                  <div className="spec-name">Opis:</div>
+                  <div className="spec-value">{product.description}</div>
+                </div>
+              </div>
+            </div>
+
+            <div className="tab-section">
+              <h2>OPINIE O PRODUKCIE</h2>
+              <div className="opinions-list">
+                {product.reviews.map((review, index) => (
+                  <div key={index} className="opinion-item">
+                    <div className="opinion-author">{review.author}</div>
+                    <div className="opinion-content">{review.comment}</div>
+                    <div className="opinion-rating">Ocena: {review.rating}/5</div>
+                    <div className="opinion-date">{new Date(review.date).toLocaleDateString()}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="tab-section">
+              <h2>DODAJ OPINIĘ</h2>
+              <div className="add-opinion">
+                <form onSubmit={handleOpinionSubmit}>
+                  <textarea
+                    placeholder="Dodaj opinię..."
+                    value={newOpinion}
+                    onChange={(e) => setNewOpinion(e.target.value)}
+                  />
+                  <div className="rating-select">
+                    <label htmlFor="rating">Ocena:</label>
+                    <select
+                      id="rating"
+                      value={rating}
+                      onChange={(e) => setRating(Number(e.target.value))}
+                    >
+                      <option value={1}>1</option>
+                      <option value={2}>2</option>
+                      <option value={3}>3</option>
+                      <option value={4}>4</option>
+                      <option value={5}>5</option>
+                    </select>
+                  </div>
+                  <button type="submit" className="add-opinion-button">Dodaj opinię</button>
+                </form>
+              </div>
+            </div>
+          </div>
+
+          <button className="add-to-cart-button">Dodaj do koszyka</button>
+        </div>
+      </div>
     </div>
   );
 };

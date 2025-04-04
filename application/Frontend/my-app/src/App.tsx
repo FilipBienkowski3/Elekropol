@@ -8,8 +8,9 @@ import Register from './components/Auth/Register';
 import DeleteUser from './components/DeleteUser/DeleteUser';
 import AddProduct from './components/AddProduct/AddProduct';
 import DeleteProduct from './components/DeleteProduct/DeleteProduct';
-import './App.css';
 import ProductPage from './components/ProductPage/ProductPage'; 
+import './App.css';
+
 export interface UserContextType {
   user: {
     id: string;
@@ -20,7 +21,6 @@ export interface UserContextType {
   } | null;
   setUser: React.Dispatch<React.SetStateAction<UserContextType['user']>>;
 }
-
 export const UserContext = React.createContext<UserContextType | undefined>(undefined);
 
 const App: React.FC = () => {
@@ -77,13 +77,14 @@ const App: React.FC = () => {
                 }
               />
               <Route
-              path="/delete-product"
-              element={
-                <ManagerRoute>
-                  <DeleteProduct />
-                </ManagerRoute>
-              }
-              />  
+                path="/delete-product"
+                element={
+                  <ManagerRoute>
+                    <DeleteProduct />
+                  </ManagerRoute>
+                }
+              />
+              <Route path="/product/:productCode" element={<ProductPage />} />
             </Routes>
           </div>
           <Footer theme={theme} />
